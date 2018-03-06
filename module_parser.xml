@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_parser" default="compile.module.parser">
+  <dirname property="module.parser.basedir" file="${ant.file.module_parser}"/>
+  
+  <property name="module.jdk.home.parser" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.parser" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.parser" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.parser" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="parser.output.dir" value="${module.parser.basedir}/target/classes"/>
+  <property name="parser.testoutput.dir" value="${module.parser.basedir}/target/test-classes"/>
+  
+  <path id="parser.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="parser.module.production.classpath">
+    <path refid="${module.jdk.classpath.parser}"/>
+    <path refid="library.hibernate_5.2.12-5.2.12.classpath"/>
+  </path>
+  
+  <path id="parser.runtime.production.module.classpath">
+    <pathelement location="${parser.output.dir}"/>
+    <path refid="library.hibernate_5.2.12-5.2.12.classpath"/>
+  </path>
+  
+  <path id="parser.module.classpath">
+    <path refid="${module.jdk.classpath.parser}"/>
+    <pathelement location="${parser.output.dir}"/>
+    <path refid="library.hibernate_5.2.12-5.2.12.classpath"/>
+  </path>
+  
+  <path id="parser.runtime.module.classpath">
+    <pathelement location="${parser.testoutput.dir}"/>
+    <pathelement location="${parser.output.dir}"/>
+    <path refid="library.hibernate_5.2.12-5.2.12.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.parser">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.parser">
+    <patternset refid="excluded.from.module.parser"/>
+  </patternset>
+  
+  <path id="parser.module.sourcepath">
+    <dirset dir="${module.parser.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="parser.module.test.sourcepath">
+    <dirset dir="${module.parser.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.parser" depends="compile.module.parser.production,compile.module.parser.tests" description="Compile module parser"/>
+  
+  <target name="compile.module.parser.production" depends="register.custom.compilers" description="Compile module parser; production classes">
+    <mkdir dir="${parser.output.dir}"/>
+    <javac2 destdir="${parser.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.parser}/javac">
+      <compilerarg line="${compiler.args.parser}"/>
+      <bootclasspath refid="parser.module.bootclasspath"/>
+      <classpath refid="parser.module.production.classpath"/>
+      <src refid="parser.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.parser"/>
+    </javac2>
+    
+    <copy todir="${parser.output.dir}">
+      <fileset dir="${module.parser.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.parser.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.parser.tests" depends="register.custom.compilers,compile.module.parser.production" description="compile module parser; test classes" unless="skip.tests">
+    <mkdir dir="${parser.testoutput.dir}"/>
+    <javac2 destdir="${parser.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.parser}/javac">
+      <compilerarg line="${compiler.args.parser}"/>
+      <bootclasspath refid="parser.module.bootclasspath"/>
+      <classpath refid="parser.module.classpath"/>
+      <src refid="parser.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.parser"/>
+    </javac2>
+    
+    <copy todir="${parser.testoutput.dir}">
+      <fileset dir="${module.parser.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.parser" description="cleanup module">
+    <delete dir="${parser.output.dir}"/>
+    <delete dir="${parser.testoutput.dir}"/>
+  </target>
+</project>

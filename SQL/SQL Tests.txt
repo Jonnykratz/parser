@@ -1,0 +1,21 @@
+
+//MySQL query to find IPs that mode more than a certain number of requests for a given time period
+
+SELECT ip.address as IPADRESS, count(ip.id) as REQUESTS  
+	FROM ipaddress_comment as IPCOM 
+    INNER JOIN ipaddress ip ON IpAddress_ID = ip.id   
+    where ip.accessTime 
+    BETWEEN "2017-01-01.13:00:00" and "2017-01-01.20:00:00" 
+    GROUP BY IPADRESS 
+    having REQUESTS > 150;
+
+
+
+//MySQL query to find requests made by a given IP
+
+SELECT ip.address as IPADRESS, count(ip.id) as REQUESTS  
+	FROM ipaddress_comment as IPCOM 
+    INNER JOIN ipaddress ip ON IpAddress_ID = ip.id   
+    where ip.accessTime 
+    BETWEEN "2017-01-01.13:00:00" and "2017-01-01.20:00:00" 
+    GROUP BY IPADRESS ;
